@@ -31,14 +31,14 @@ export const HeroSection = () => {
         </video>
       </div>
       {/* Background Video - Mobile 9:16 */}
-      <div className="absolute inset-0 md:hidden overflow-hidden bg-charcoal">
+      <div className="absolute inset-0 md:hidden overflow-hidden">
         <video
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
-          className="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
+          className="w-full h-full object-cover"
         >
           <source src={heroVideoMobile} type="video/mp4" />
         </video>
