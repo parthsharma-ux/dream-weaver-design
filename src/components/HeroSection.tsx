@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Phone, MessageCircle, MapPin } from "lucide-react";
 import { Button } from "./ui/button";
+import heroBg from "@/assets/hero-bg.jpg";
 
 export const HeroSection = () => {
   const handleWhatsApp = () => {
@@ -15,9 +16,13 @@ export const HeroSection = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-charcoal">
-      {/* Background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-charcoal/80 via-charcoal/70 to-charcoal/95" />
+    <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <img src={heroBg} alt="Luxury construction in Jaipur" className="w-full h-full object-cover" />
+      </div>
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-charcoal/70 via-charcoal/60 to-charcoal/90" />
 
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10 pt-28 md:pt-24 pb-12">

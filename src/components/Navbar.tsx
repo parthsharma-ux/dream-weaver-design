@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Phone, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./ThemeToggle";
+import logo from "@/assets/logo.jpg";
 
 const navLinks = [
   { name: "Home", href: "#home" },
@@ -45,13 +46,16 @@ export const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between gap-3">
-        <a href="#home" className="flex flex-col min-w-0 max-w-[62vw] sm:max-w-none">
-          <span className="font-serif text-lg sm:text-xl md:text-2xl font-bold text-cream truncate">
-            Bhagwati Builder
-          </span>
-          <span className="text-[10px] sm:text-xs text-gold font-medium tracking-wider truncate">
-            Jaipur Builder • Since 2012
-          </span>
+        <a href="#home" className="flex items-center gap-2 min-w-0 max-w-[62vw] sm:max-w-none">
+          <img src={logo} alt="Bhagwati Property & Builders" className="h-10 sm:h-12 w-auto rounded" />
+          <div className="flex flex-col">
+            <span className="font-serif text-lg sm:text-xl md:text-2xl font-bold text-cream truncate">
+              Bhagwati Builder
+            </span>
+            <span className="text-[10px] sm:text-xs text-gold font-medium tracking-wider truncate">
+              Jaipur Builder • Since 2012
+            </span>
+          </div>
         </a>
 
         <div className="hidden lg:flex items-center gap-8">
