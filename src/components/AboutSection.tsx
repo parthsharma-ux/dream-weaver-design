@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Award, Shield, Gem, CheckCircle } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 export const AboutSection = () => {
   const ref = useRef(null);
@@ -36,7 +37,7 @@ export const AboutSection = () => {
               Since 2012
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-              <strong className="text-foreground">Bhagwati Builder</strong> &{" "}
+              <img src={logo} alt="Bhagwati Builder" className="inline h-6 w-auto rounded mr-1 align-middle" /><strong className="text-foreground">Bhagwati Builder</strong> &{" "}
               <strong className="text-foreground">Sanwariya Home Decor</strong>{" "}
               have been delivering quality construction and interior solutions
               for over a decade in Jaipur, Rajasthan.

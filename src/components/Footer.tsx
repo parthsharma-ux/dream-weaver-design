@@ -1,4 +1,5 @@
 import { Phone, MessageCircle, MapPin } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 const services = ["Civil Construction", "Interior Design", "Wooden Work", "Modular Kitchen", "Terrace Garden", "Modern Elevation"];
 const quickLinks = [
@@ -18,7 +19,10 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           <div className="sm:col-span-2 lg:col-span-1 text-center sm:text-left">
-            <h3 className="font-serif text-xl md:text-2xl font-bold mb-2 break-words">Bhagwati Builder</h3>
+           <div className="flex items-center gap-2 justify-center sm:justify-start mb-2">
+              <img src={logo} alt="Bhagwati Builder" className="h-10 w-auto rounded" />
+              <h3 className="font-serif text-xl md:text-2xl font-bold break-words">Bhagwati Builder</h3>
+            </div>
             <p className="text-gold text-sm mb-4">Jaipur Builder • Since 2012</p>
             <p className="text-cream/60 text-sm leading-relaxed mb-6">
               "We Build Your Dream Not Only A House"<br /><br />

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Clock, Award, Gem, Palette, Users, MapPin } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 const reasons = [
   { icon: Award, title: "10+ Years Experience", description: "Over a decade of expertise in construction and interior design in Jaipur." },
@@ -30,7 +31,7 @@ export const WhyChooseUs = () => {
         >
           <span className="text-gold font-medium tracking-widest text-sm uppercase mb-4 block">Why Choose Us</span>
           <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-6">
-            The <span className="text-gradient-gold">Bhagwati Builder</span><br />Advantage
+            The <img src={logo} alt="Bhagwati Builder" className="inline h-8 w-auto rounded mr-1 align-middle" /><span className="text-gradient-gold">Bhagwati Builder</span><br />Advantage
           </h2>
           <p className="text-muted-foreground text-lg">
             Experience the difference of working with Jaipur's most trusted construction and interior company.
