@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Phone, MessageCircle, MapPin } from "lucide-react";
 import { Button } from "./ui/button";
 import heroVideo from "@/assets/hero-video.mp4";
+import heroVideoMobile from "@/assets/hero-video-mobile.mp4";
 
 export const HeroSection = () => {
   const handleWhatsApp = () => {
@@ -17,8 +18,8 @@ export const HeroSection = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background Video */}
-      <div className="absolute inset-0">
+      {/* Background Video - Desktop */}
+      <div className="absolute inset-0 hidden md:block">
         <video
           autoPlay
           muted
@@ -27,6 +28,19 @@ export const HeroSection = () => {
           className="w-full h-full object-cover"
         >
           <source src={heroVideo} type="video/mp4" />
+        </video>
+      </div>
+      {/* Background Video - Mobile 9:16 */}
+      <div className="absolute inset-0 md:hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+          style={{ aspectRatio: '9/16' }}
+        >
+          <source src={heroVideoMobile} type="video/mp4" />
         </video>
       </div>
       {/* Gradient overlay */}
