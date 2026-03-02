@@ -1,16 +1,11 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { X, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
-const projects = [
-  { id: 1, category: "Construction", title: "Modern Villa - Vaishali Nagar", description: "Complete 4BHK villa construction with contemporary design" },
-  { id: 2, category: "Interior", title: "Luxury Living Room - Mansarovar", description: "Premium interior design with Italian marble flooring" },
-  { id: 3, category: "Kitchen", title: "Modular Kitchen - Malviya Nagar", description: "Space-efficient modular kitchen with German fittings" },
-  { id: 4, category: "Wooden Work", title: "Custom Wardrobe - C-Scheme", description: "Floor-to-ceiling wardrobe with premium teak finish" },
-  { id: 5, category: "Terrace", title: "Rooftop Garden - Raja Park", description: "Beautiful terrace garden with seating area" },
-  { id: 6, category: "Elevation", title: "Modern Facade - Tonk Road", description: "Contemporary elevation with 3D cladding design" },
-];
+type Project = Tables<"portfolio_projects">;
 
 const categoryColors: Record<string, string> = {
   Construction: "bg-blue-500/20 text-blue-400",
@@ -24,7 +19,16 @@ const categoryColors: Record<string, string> = {
 export const ProjectsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
-  const [selectedProject, setSelectedProject] = useState<number | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    supabase.from("portfolio_projects").select("*").order("created_at").then(({ data }) => {
+      if (data) setProjects(data);
+    });
+  }, []);
+
+  const selected = projects.find((p) => p.id === selectedProject);
 
   return (
     <section id="projects" className="py-24 bg-background relative overflow-hidden">
@@ -59,13 +63,19 @@ export const ProjectsSection = () => {
               onClick={() => setSelectedProject(project.id)}
             >
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 border border-border hover:border-gold/50 transition-all duration-500 shadow-premium">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-gold rounded-2xl flex items-center justify-center">
-                      <span className="text-2xl font-serif font-bold text-charcoal">{project.id}</span>
+                <div className="absolute inset-0">
+                  {project.image ? (
+                    <img src={project.image} alt={project.title} className="w-full h-full object-cover" loading="lazy" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center p-6">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-gold rounded-2xl flex items-center justify-center">
+                          <span className="text-2xl font-serif font-bold text-charcoal">{index + 1}</span>
+                        </div>
+                        <p className="text-muted-foreground text-sm">Project Image</p>
+                      </div>
                     </div>
-                    <p className="text-muted-foreground text-sm">Project Image</p>
-                  </div>
+                  )}
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="absolute inset-x-0 bottom-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -96,7 +106,7 @@ export const ProjectsSection = () => {
         </motion.div>
       </div>
 
-      {selectedProject && (
+      {selected && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -108,22 +118,18 @@ export const ProjectsSection = () => {
             <X className="w-8 h-8" />
           </button>
           <div className="max-w-4xl w-full bg-card rounded-2xl p-8 border border-border" onClick={(e) => e.stopPropagation()}>
-            <div className="aspect-video bg-gradient-to-br from-gold/20 to-gold/5 rounded-xl mb-6 flex items-center justify-center">
-              <span className="text-muted-foreground">Project Image Preview</span>
+            <div className="aspect-video bg-gradient-to-br from-gold/20 to-gold/5 rounded-xl mb-6 overflow-hidden flex items-center justify-center">
+              {selected.image ? (
+                <img src={selected.image} alt={selected.title} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-muted-foreground">Project Image Preview</span>
+              )}
             </div>
-            {projects.find((p) => p.id === selectedProject) && (
-              <div>
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 ${categoryColors[projects.find((p) => p.id === selectedProject)!.category] || "bg-gold/20 text-gold"}`}>
-                  {projects.find((p) => p.id === selectedProject)!.category}
-                </span>
-                <h3 className="font-serif text-2xl font-bold text-foreground mb-2">
-                  {projects.find((p) => p.id === selectedProject)!.title}
-                </h3>
-                <p className="text-muted-foreground">
-                  {projects.find((p) => p.id === selectedProject)!.description}
-                </p>
-              </div>
-            )}
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 ${categoryColors[selected.category] || "bg-gold/20 text-gold"}`}>
+              {selected.category}
+            </span>
+            <h3 className="font-serif text-2xl font-bold text-foreground mb-2">{selected.title}</h3>
+            <p className="text-muted-foreground">{selected.description}</p>
           </div>
         </motion.div>
       )}

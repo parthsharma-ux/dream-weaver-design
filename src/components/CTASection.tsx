@@ -3,6 +3,7 @@ import { useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Phone, MessageCircle, Send, CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export const CTASection = () => {
   const ref = useRef(null);
@@ -18,11 +19,22 @@ export const CTASection = () => {
     window.location.href = "tel:+917737177301";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Save lead to database
+    await supabase.from("leads").insert({
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      city: formData.city.trim() || null,
+      message: formData.requirement.trim() || null,
+    });
+
+    // Also send via WhatsApp
     const message = `Hello! I'm ${formData.name} from ${formData.city}.\n\nMy Requirement: ${formData.requirement}\n\nPlease contact me at: ${formData.phone}`;
     window.open(`https://wa.me/917737177301?text=${encodeURIComponent(message)}`, "_blank");
     setIsSubmitted(true);
+    setFormData({ name: "", phone: "", city: "", requirement: "" });
     setTimeout(() => setIsSubmitted(false), 3000);
   };
 
