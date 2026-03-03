@@ -26,8 +26,8 @@ const AdminLogin = () => {
       return;
     }
 
-    navigate("/admin");
-    setLoading(false);
+    // Navigation happens via useEffect watching auth state
+    navigate("/admin", { replace: true });
   };
 
   return (
