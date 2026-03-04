@@ -3,8 +3,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, X, Save, Upload, Video, ImagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Save, Video, ImagePlus, GripVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const categories = ["Construction", "Interior", "Kitchen", "Wooden Work", "Terrace", "Elevation"];
 const statuses = [
@@ -28,6 +46,68 @@ const emptyForm: FormState = {
   title: "", description: "", category: "Construction", image: "", images: [], video_url: "", status: "completed", service_id: "",
 };
 
+// Sortable project card component
+const SortableProjectCard = ({ project, statusInfo, onEdit, onDelete }: {
+  project: any;
+  statusInfo: (s: string) => { value: string; label: string; color: string };
+  onEdit: (p: any) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: project.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+  const si = statusInfo(project.status);
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card className="overflow-hidden">
+        <div className="flex">
+          <div
+            {...attributes}
+            {...listeners}
+            className="flex items-center justify-center px-2 bg-muted/50 cursor-grab active:cursor-grabbing touch-none"
+          >
+            <GripVertical className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row">
+              {project.image ? (
+                <img src={project.image} alt={project.title} className="w-full sm:w-32 h-28 object-cover" />
+              ) : (
+                <div className="w-full sm:w-32 h-28 bg-muted flex items-center justify-center text-muted-foreground text-xs">No Image</div>
+              )}
+              <CardContent className="p-3 flex-1">
+                <div className="flex gap-2 mb-1">
+                  <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">{project.category}</span>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${si.color}`}>{si.label}</span>
+                </div>
+                <h3 className="font-semibold text-foreground text-sm">{project.title}</h3>
+                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{project.description}</p>
+                <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                  {(project.images?.length || 0) > 0 && <span>{project.images.length} images</span>}
+                  {project.video_url && <span>• video</span>}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" onClick={() => onEdit(project)}>
+                    <Pencil className="w-3 h-3" /> Edit
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={() => onDelete(project.id)}>
+                    <Trash2 className="w-3 h-3" /> Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 const AdminPortfolio = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
@@ -38,9 +118,15 @@ const AdminPortfolio = () => {
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
   const fetchData = async () => {
     const [{ data: p }, { data: s }] = await Promise.all([
-      supabase.from("portfolio_projects").select("*").order("created_at", { ascending: false }),
+      supabase.from("portfolio_projects").select("*").order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
       supabase.from("services").select("id, title").order("created_at"),
     ]);
     setProjects(p ?? []);
@@ -114,11 +200,15 @@ const AdminPortfolio = () => {
       video_url: form.video_url || null,
       status: form.status,
       service_id: form.service_id || null,
+      sort_order: editing ? undefined : projects.length,
     };
 
+    // Remove undefined keys
+    const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
+
     const { error } = editing
-      ? await supabase.from("portfolio_projects").update(payload).eq("id", editing)
-      : await supabase.from("portfolio_projects").insert(payload);
+      ? await supabase.from("portfolio_projects").update(cleanPayload).eq("id", editing)
+      : await supabase.from("portfolio_projects").insert(cleanPayload);
 
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: editing ? "Updated" : "Created", description: `Project ${editing ? "updated" : "created"} successfully` });
@@ -151,7 +241,22 @@ const AdminPortfolio = () => {
     fetchData();
   };
 
-  const statusInfo = (s: string) => statuses.find(st => st.value === s) || statuses[0];
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = projects.findIndex(p => p.id === active.id);
+    const newIndex = projects.findIndex(p => p.id === over.id);
+    const reordered = arrayMove(projects, oldIndex, newIndex);
+    setProjects(reordered);
+
+    // Persist new order
+    const updates = reordered.map((p, i) => supabase.from("portfolio_projects").update({ sort_order: i }).eq("id", p.id));
+    await Promise.all(updates);
+    toast({ title: "Reordered", description: "Project order saved" });
+  };
+
+  const getStatusInfo = (s: string) => statuses.find(st => st.value === s) || statuses[0];
 
   return (
     <div>
@@ -273,40 +378,21 @@ const AdminPortfolio = () => {
       {loading ? (
         <p className="text-muted-foreground">Loading...</p>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project) => {
-            const si = statusInfo(project.status);
-            return (
-              <Card key={project.id} className="overflow-hidden">
-                {project.image ? (
-                  <img src={project.image} alt={project.title} className="w-full h-40 object-cover" />
-                ) : (
-                  <div className="w-full h-40 bg-muted flex items-center justify-center text-muted-foreground text-sm">No Image</div>
-                )}
-                <CardContent className="p-4">
-                  <div className="flex gap-2 mb-2">
-                    <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">{project.category}</span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${si.color}`}>{si.label}</span>
-                  </div>
-                  <h3 className="font-semibold text-foreground">{project.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{project.description}</p>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    {(project.images?.length || 0) > 0 && <span>{project.images.length} images</span>}
-                    {project.video_url && <span>• video</span>}
-                  </div>
-                  <div className="flex gap-2 mt-3">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(project)}>
-                      <Pencil className="w-3 h-3" /> Edit
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(project.id)}>
-                      <Trash2 className="w-3 h-3" /> Delete
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+            <div className="grid gap-3">
+              {projects.map((project) => (
+                <SortableProjectCard
+                  key={project.id}
+                  project={project}
+                  statusInfo={getStatusInfo}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, X, Save } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Save, ImagePlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -16,7 +16,8 @@ const AdminServices = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", icon: "Building2", features: "" });
+  const [form, setForm] = useState({ title: "", description: "", icon: "Building2", features: "", image: "" });
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   const fetchServices = async () => {
@@ -27,6 +28,30 @@ const AdminServices = () => {
 
   useEffect(() => { fetchServices(); }, []);
 
+  const uploadImage = async (file: File): Promise<string | null> => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "Error", description: "File must be under 10MB", variant: "destructive" });
+      return null;
+    }
+    const ext = file.name.split(".").pop();
+    const path = `services/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("portfolio").upload(path, file);
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      return null;
+    }
+    return supabase.storage.from("portfolio").getPublicUrl(path).data.publicUrl;
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const url = await uploadImage(file);
+    if (url) setForm(prev => ({ ...prev, image: url }));
+    setUploading(false);
+  };
+
   const handleSave = async () => {
     if (!form.title.trim() || !form.description.trim()) {
       toast({ title: "Error", description: "Title and description are required", variant: "destructive" });
@@ -34,23 +59,23 @@ const AdminServices = () => {
     }
     const featuresArr = form.features.split(",").map((f) => f.trim()).filter(Boolean);
 
+    const payload: any = {
+      title: form.title, description: form.description, icon: form.icon, features: featuresArr, image: form.image || null,
+    };
+
     if (editing) {
-      const { error } = await supabase.from("services").update({
-        title: form.title, description: form.description, icon: form.icon, features: featuresArr,
-      }).eq("id", editing);
+      const { error } = await supabase.from("services").update(payload).eq("id", editing);
       if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
       toast({ title: "Updated", description: "Service updated successfully" });
     } else {
-      const { error } = await supabase.from("services").insert({
-        title: form.title, description: form.description, icon: form.icon, features: featuresArr,
-      });
+      const { error } = await supabase.from("services").insert(payload);
       if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
       toast({ title: "Created", description: "Service created successfully" });
     }
 
     setEditing(null);
     setShowForm(false);
-    setForm({ title: "", description: "", icon: "Building2", features: "" });
+    setForm({ title: "", description: "", icon: "Building2", features: "", image: "" });
     fetchServices();
   };
 
@@ -60,6 +85,7 @@ const AdminServices = () => {
       description: service.description,
       icon: service.icon,
       features: (service.features ?? []).join(", "),
+      image: (service as any).image ?? "",
     });
     setEditing(service.id);
     setShowForm(true);
@@ -77,7 +103,7 @@ const AdminServices = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-serif text-3xl font-bold text-foreground">Manage Services</h1>
-        <Button variant="gold" onClick={() => { setShowForm(true); setEditing(null); setForm({ title: "", description: "", icon: "Building2", features: "" }); }}>
+        <Button variant="gold" onClick={() => { setShowForm(true); setEditing(null); setForm({ title: "", description: "", icon: "Building2", features: "", image: "" }); }}>
           <Plus className="w-4 h-4" /> Add Service
         </Button>
       </div>
@@ -115,6 +141,26 @@ const AdminServices = () => {
                 ))}
               </div>
             </div>
+
+            {/* Service Image */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">Service Image (optional)</label>
+              {form.image && (
+                <div className="mb-2 relative inline-block group">
+                  <img src={form.image} alt="Service preview" className="w-40 h-28 object-cover rounded-lg border border-border" />
+                  <button type="button" onClick={() => setForm({ ...form, image: "" })}
+                    className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    ×
+                  </button>
+                </div>
+              )}
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-card cursor-pointer hover:bg-muted transition-colors text-sm">
+                <ImagePlus className="w-4 h-4" />
+                {uploading ? "Uploading..." : "Upload Image"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+              </label>
+            </div>
+
             <Input placeholder="Features (comma separated)" value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} />
             <Button variant="gold" onClick={handleSave}>
               <Save className="w-4 h-4" /> {editing ? "Update" : "Create"}
@@ -130,13 +176,18 @@ const AdminServices = () => {
           {services.map((service) => (
             <Card key={service.id}>
               <CardContent className="flex items-center justify-between p-4">
-                <div>
-                  <h3 className="font-semibold text-foreground">{service.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-1">{service.description}</p>
-                  <div className="flex gap-1 mt-1">
-                    {(service.features ?? []).map((f, i) => (
-                      <span key={i} className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">{f}</span>
-                    ))}
+                <div className="flex items-center gap-4">
+                  {(service as any).image && (
+                    <img src={(service as any).image} alt={service.title} className="w-16 h-12 object-cover rounded-lg border border-border" />
+                  )}
+                  <div>
+                    <h3 className="font-semibold text-foreground">{service.title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{service.description}</p>
+                    <div className="flex gap-1 mt-1">
+                      {(service.features ?? []).map((f, i) => (
+                        <span key={i} className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">{f}</span>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-2">
