@@ -191,7 +191,7 @@ const AdminPortfolio = () => {
       return;
     }
 
-    const payload = {
+    const basePayload = {
       title: form.title,
       description: form.description,
       category: form.category,
@@ -200,15 +200,11 @@ const AdminPortfolio = () => {
       video_url: form.video_url || null,
       status: form.status,
       service_id: form.service_id || null,
-      sort_order: editing ? undefined : projects.length,
     };
 
-    // Remove undefined keys
-    const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
-
     const { error } = editing
-      ? await supabase.from("portfolio_projects").update(cleanPayload).eq("id", editing)
-      : await supabase.from("portfolio_projects").insert(cleanPayload);
+      ? await supabase.from("portfolio_projects").update(basePayload).eq("id", editing)
+      : await supabase.from("portfolio_projects").insert({ ...basePayload, sort_order: projects.length });
 
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: editing ? "Updated" : "Created", description: `Project ${editing ? "updated" : "created"} successfully` });
