@@ -56,6 +56,7 @@ export type Database = {
           image: string | null
           images: string[] | null
           service_id: string | null
+          sort_order: number
           status: string
           title: string
           video_url: string | null
@@ -68,6 +69,7 @@ export type Database = {
           image?: string | null
           images?: string[] | null
           service_id?: string | null
+          sort_order?: number
           status?: string
           title: string
           video_url?: string | null
@@ -80,6 +82,7 @@ export type Database = {
           image?: string | null
           images?: string[] | null
           service_id?: string | null
+          sort_order?: number
           status?: string
           title?: string
           video_url?: string | null
@@ -101,6 +104,7 @@ export type Database = {
           features: string[] | null
           icon: string
           id: string
+          image: string | null
           title: string
         }
         Insert: {
@@ -109,6 +113,7 @@ export type Database = {
           features?: string[] | null
           icon?: string
           id?: string
+          image?: string | null
           title: string
         }
         Update: {
@@ -117,6 +122,7 @@ export type Database = {
           features?: string[] | null
           icon?: string
           id?: string
+          image?: string | null
           title?: string
         }
         Relationships: []

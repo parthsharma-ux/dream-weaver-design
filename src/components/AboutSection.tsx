@@ -37,9 +37,8 @@ export const AboutSection = () => {
               Since 2012
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-              <img src={logo} alt="Bhagwati Builder" className="inline h-6 w-auto rounded mr-1 align-middle" /><strong className="text-foreground">Bhagwati Builder</strong> &{" "}
-              <strong className="text-foreground">Sanwariya Home Decor</strong>{" "}
-              have been delivering quality construction and interior solutions
+              <img src={logo} alt="Bhagwati Builder" className="inline h-6 w-auto rounded mr-1 align-middle" /><strong className="text-foreground">Bhagwati Builder</strong>{" "}
+              has been delivering quality construction and interior solutions
               for over a decade in Jaipur, Rajasthan.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-8">
