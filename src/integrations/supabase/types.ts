@@ -54,7 +54,11 @@ export type Database = {
           description: string
           id: string
           image: string | null
+          images: string[] | null
+          service_id: string | null
+          status: string
           title: string
+          video_url: string | null
         }
         Insert: {
           category?: string
@@ -62,7 +66,11 @@ export type Database = {
           description: string
           id?: string
           image?: string | null
+          images?: string[] | null
+          service_id?: string | null
+          status?: string
           title: string
+          video_url?: string | null
         }
         Update: {
           category?: string
@@ -70,9 +78,21 @@ export type Database = {
           description?: string
           id?: string
           image?: string | null
+          images?: string[] | null
+          service_id?: string | null
+          status?: string
           title?: string
+          video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_projects_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {
