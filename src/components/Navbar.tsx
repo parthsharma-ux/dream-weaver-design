@@ -121,7 +121,7 @@ export const Navbar = () => {
                 </Button>
                 <Button variant="whatsapp" onClick={handleWhatsApp}>
                   <MessageCircle className="w-4 h-4" />
-                  WhatsApp Consultation
+                  WhatsApp Appointment
                 </Button>
               </div>
             </div>

@@ -217,7 +217,7 @@ export const PricingCalculator = () => {
                   <MessageCircle className="w-5 h-5" /> Get Detailed Quote
                 </Button>
                 <Button variant="heroOutline" size="lg" className="w-full" onClick={() => (window.location.href = "tel:+917737177301")}>
-                  <Phone className="w-5 h-5" /> Call for Consultation
+                  <Phone className="w-5 h-5" /> Call for Appointment
                 </Button>
               </div>
               <div className="mt-6 p-3 bg-gold/10 rounded-xl text-center">

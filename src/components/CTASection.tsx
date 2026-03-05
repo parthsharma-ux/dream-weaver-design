@@ -99,7 +99,7 @@ export const CTASection = () => {
                 <input type="text" placeholder="City (e.g., Jaipur)" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} required className="w-full bg-charcoal border border-gold/30 rounded-xl px-5 py-4 text-cream placeholder:text-cream/40 focus:outline-none focus:border-gold transition-colors" />
                 <textarea placeholder="Your Requirement (Construction / Interior / Both)" value={formData.requirement} onChange={(e) => setFormData({ ...formData, requirement: e.target.value })} required rows={3} className="w-full bg-charcoal border border-gold/30 rounded-xl px-5 py-4 text-cream placeholder:text-cream/40 focus:outline-none focus:border-gold transition-colors resize-none" />
                 <Button type="submit" variant="gold" size="xl" className="w-full" disabled={isSubmitted}>
-                  {isSubmitted ? (<><CheckCircle className="w-5 h-5" /> Request Sent!</>) : (<><Send className="w-5 h-5" /> Get Free Consultation</>)}
+                  {isSubmitted ? (<><CheckCircle className="w-5 h-5" /> Request Sent!</>) : (<><Send className="w-5 h-5" /> Get Free Appointment</>)}
                 </Button>
               </form>
             </div>

@@ -71,7 +71,7 @@ export const WhyChooseUs = () => {
             Ready to Build Your Dream Home?
           </h3>
           <p className="text-charcoal/80 mb-6 max-w-2xl mx-auto">
-            Join 1000+ happy families who trusted us with their dream homes. Get a free consultation today.
+            Join 1000+ happy families who trusted us with their dream homes. Get a free appointment today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="tel:+917737177301" className="inline-flex items-center justify-center gap-2 bg-charcoal text-cream px-8 py-4 rounded-xl font-semibold hover:bg-charcoal/90 transition-colors">
