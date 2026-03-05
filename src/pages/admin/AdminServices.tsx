@@ -176,6 +176,27 @@ const AdminServices = () => {
               </label>
             </div>
 
+            {/* Gallery Images */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">Gallery Images for Learn More (optional)</label>
+              {form.images.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {form.images.map((img, i) => (
+                    <div key={i} className="relative group/gal">
+                      <img src={img} alt={`Gallery ${i + 1}`} className="w-24 h-20 object-cover rounded-lg border border-border" />
+                      <button type="button" onClick={() => setForm(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}
+                        className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover/gal:opacity-100 transition-opacity">×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-card cursor-pointer hover:bg-muted transition-colors text-sm">
+                <ImagePlus className="w-4 h-4" />
+                {uploading ? "Uploading..." : "Add Gallery Images"}
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleGalleryUpload} disabled={uploading} />
+              </label>
+            </div>
+
             <Input placeholder="Features (comma separated)" value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} />
             <div>
               <label className="text-sm font-medium text-foreground mb-2 block">Learn More Details (optional)</label>

@@ -11,6 +11,7 @@ type Service = {
   icon: string;
   features: string[] | null;
   image: string | null;
+  images: string[] | null;
   long_description: string | null;
   created_at: string;
 };
