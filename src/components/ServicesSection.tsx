@@ -118,7 +118,9 @@ export const ServicesSection = () => {
               className="bg-card border border-border rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-premium"
             >
               {selected.image && (
-                <img src={selected.image} alt={selected.title} className="w-full h-56 object-cover rounded-t-3xl" />
+                <div className="w-full rounded-t-3xl overflow-hidden bg-black/5">
+                  <img src={selected.image} alt={selected.title} className="w-full h-auto object-contain max-h-[60vh]" />
+                </div>
               )}
               <div className="p-8">
                 <div className="flex items-start justify-between mb-4">
