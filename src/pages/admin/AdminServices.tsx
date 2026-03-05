@@ -16,7 +16,7 @@ const AdminServices = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", icon: "Building2", features: "", image: "" });
+  const [form, setForm] = useState({ title: "", description: "", icon: "Building2", features: "", image: "", long_description: "" });
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
@@ -60,7 +60,7 @@ const AdminServices = () => {
     const featuresArr = form.features.split(",").map((f) => f.trim()).filter(Boolean);
 
     const payload: any = {
-      title: form.title, description: form.description, icon: form.icon, features: featuresArr, image: form.image || null,
+      title: form.title, description: form.description, icon: form.icon, features: featuresArr, image: form.image || null, long_description: form.long_description || null,
     };
 
     if (editing) {
@@ -75,7 +75,7 @@ const AdminServices = () => {
 
     setEditing(null);
     setShowForm(false);
-    setForm({ title: "", description: "", icon: "Building2", features: "", image: "" });
+    setForm({ title: "", description: "", icon: "Building2", features: "", image: "", long_description: "" });
     fetchServices();
   };
 
@@ -86,6 +86,7 @@ const AdminServices = () => {
       icon: service.icon,
       features: (service.features ?? []).join(", "),
       image: (service as any).image ?? "",
+      long_description: (service as any).long_description ?? "",
     });
     setEditing(service.id);
     setShowForm(true);
@@ -103,7 +104,7 @@ const AdminServices = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-serif text-3xl font-bold text-foreground">Manage Services</h1>
-        <Button variant="gold" onClick={() => { setShowForm(true); setEditing(null); setForm({ title: "", description: "", icon: "Building2", features: "", image: "" }); }}>
+        <Button variant="gold" onClick={() => { setShowForm(true); setEditing(null); setForm({ title: "", description: "", icon: "Building2", features: "", image: "", long_description: "" }); }}>
           <Plus className="w-4 h-4" /> Add Service
         </Button>
       </div>
@@ -162,6 +163,15 @@ const AdminServices = () => {
             </div>
 
             <Input placeholder="Features (comma separated)" value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} />
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">Learn More Details (optional)</label>
+              <textarea
+                placeholder="Detailed description shown when user clicks 'Learn More'"
+                value={form.long_description}
+                onChange={(e) => setForm({ ...form, long_description: e.target.value })}
+                className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
             <Button variant="gold" onClick={handleSave}>
               <Save className="w-4 h-4" /> {editing ? "Update" : "Create"}
             </Button>
