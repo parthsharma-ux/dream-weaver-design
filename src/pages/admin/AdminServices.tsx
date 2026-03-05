@@ -187,8 +187,22 @@ const AdminServices = () => {
             <Card key={service.id}>
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-4">
-                  {(service as any).image && (
-                    <img src={(service as any).image} alt={service.title} className="w-16 h-12 object-cover rounded-lg border border-border" />
+                  {service.image && (
+                    <div className="relative group/img">
+                      <img src={service.image} alt={service.title} className="w-16 h-12 object-cover rounded-lg border border-border" />
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!confirm("Remove image from this service?")) return;
+                          const { error } = await supabase.from("services").update({ image: null }).eq("id", service.id);
+                          if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+                          toast({ title: "Image removed" });
+                          fetchServices();
+                        }}
+                        className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover/img:opacity-100 transition-opacity"
+                      >×</button>
+                    </div>
                   )}
                   <div>
                     <h3 className="font-semibold text-foreground">{service.title}</h3>
