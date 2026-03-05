@@ -16,7 +16,7 @@ const AdminServices = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", icon: "Building2", features: "", image: "", long_description: "" });
+  const [form, setForm] = useState({ title: "", description: "", icon: "Building2", features: "", image: "", images: [] as string[], long_description: "" });
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
@@ -52,6 +52,19 @@ const AdminServices = () => {
     setUploading(false);
   };
 
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    const urls: string[] = [];
+    for (const file of Array.from(files)) {
+      const url = await uploadImage(file);
+      if (url) urls.push(url);
+    }
+    setForm(prev => ({ ...prev, images: [...prev.images, ...urls] }));
+    setUploading(false);
+  };
+
   const handleSave = async () => {
     if (!form.title.trim() || !form.description.trim()) {
       toast({ title: "Error", description: "Title and description are required", variant: "destructive" });
@@ -60,7 +73,7 @@ const AdminServices = () => {
     const featuresArr = form.features.split(",").map((f) => f.trim()).filter(Boolean);
 
     const payload: any = {
-      title: form.title, description: form.description, icon: form.icon, features: featuresArr, image: form.image || null, long_description: form.long_description || null,
+      title: form.title, description: form.description, icon: form.icon, features: featuresArr, image: form.image || null, images: form.images, long_description: form.long_description || null,
     };
 
     if (editing) {
@@ -75,7 +88,7 @@ const AdminServices = () => {
 
     setEditing(null);
     setShowForm(false);
-    setForm({ title: "", description: "", icon: "Building2", features: "", image: "", long_description: "" });
+    setForm({ title: "", description: "", icon: "Building2", features: "", image: "", images: [], long_description: "" });
     fetchServices();
   };
 
@@ -85,8 +98,9 @@ const AdminServices = () => {
       description: service.description,
       icon: service.icon,
       features: (service.features ?? []).join(", "),
-      image: (service as any).image ?? "",
-      long_description: (service as any).long_description ?? "",
+      image: service.image ?? "",
+      images: (service as any).images ?? [],
+      long_description: service.long_description ?? "",
     });
     setEditing(service.id);
     setShowForm(true);
@@ -104,7 +118,7 @@ const AdminServices = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-serif text-3xl font-bold text-foreground">Manage Services</h1>
-        <Button variant="gold" onClick={() => { setShowForm(true); setEditing(null); setForm({ title: "", description: "", icon: "Building2", features: "", image: "", long_description: "" }); }}>
+        <Button variant="gold" onClick={() => { setShowForm(true); setEditing(null); setForm({ title: "", description: "", icon: "Building2", features: "", image: "", images: [], long_description: "" }); }}>
           <Plus className="w-4 h-4" /> Add Service
         </Button>
       </div>
