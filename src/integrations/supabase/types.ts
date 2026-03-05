@@ -105,6 +105,7 @@ export type Database = {
           icon: string
           id: string
           image: string | null
+          images: string[] | null
           long_description: string | null
           title: string
         }
@@ -115,6 +116,7 @@ export type Database = {
           icon?: string
           id?: string
           image?: string | null
+          images?: string[] | null
           long_description?: string | null
           title: string
         }
@@ -125,6 +127,7 @@ export type Database = {
           icon?: string
           id?: string
           image?: string | null
+          images?: string[] | null
           long_description?: string | null
           title?: string
         }

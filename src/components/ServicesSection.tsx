@@ -11,6 +11,7 @@ type Service = {
   icon: string;
   features: string[] | null;
   image: string | null;
+  images: string[] | null;
   long_description: string | null;
   created_at: string;
 };
@@ -65,12 +66,7 @@ export const ServicesSection = () => {
                 className="group"
               >
                 <div className="card-3d bg-card border border-border rounded-2xl overflow-hidden h-full shadow-premium hover:border-gold/50 transition-all duration-500 flex flex-col">
-                  {service.image && (
-                    <div className="w-full h-48 overflow-hidden">
-                      <img src={service.image} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                  )}
-                  <div className="p-8 flex flex-col flex-1">
+                <div className="p-8 flex flex-col flex-1">
                     <div className="w-16 h-16 bg-gradient-gold rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-gold">
                       <IconComp className="w-8 h-8 text-charcoal" />
                     </div>
@@ -117,11 +113,6 @@ export const ServicesSection = () => {
               onClick={(e) => e.stopPropagation()}
               className="bg-card border border-border rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-premium"
             >
-              {selected.image && (
-                <div className="w-full rounded-t-3xl overflow-hidden bg-black/5">
-                  <img src={selected.image} alt={selected.title} className="w-full h-auto object-contain max-h-[60vh]" />
-                </div>
-              )}
               <div className="p-8">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
@@ -137,6 +128,17 @@ export const ServicesSection = () => {
                 <p className="text-muted-foreground text-lg leading-relaxed mb-6">{selected.description}</p>
                 {selected.long_description && (
                   <div className="text-foreground/80 leading-relaxed mb-6 whitespace-pre-line">{selected.long_description}</div>
+                )}
+                {/* Gallery Images */}
+                {((selected.images && selected.images.length > 0) || selected.image) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    {selected.image && (
+                      <img src={selected.image} alt={selected.title} className="w-full h-auto rounded-xl object-contain bg-black/5" />
+                    )}
+                    {(selected.images ?? []).map((img, i) => (
+                      <img key={i} src={img} alt={`${selected.title} ${i + 1}`} className="w-full h-auto rounded-xl object-contain bg-black/5" />
+                    ))}
+                  </div>
                 )}
                 <div className="flex flex-wrap gap-2 mb-6">
                   {(selected.features ?? []).map((f, i) => (
